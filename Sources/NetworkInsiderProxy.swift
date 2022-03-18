@@ -70,7 +70,7 @@ final class NetworkInsiderProxy: URLProtocol {
 		guard
 			Configuration._isEnabled,
 			let host = request.url?.host,
-			Configuration._ignoreHosts.allSatisfy({ !host.contains( $0 ) }),
+			Configuration._ignoredHosts.allSatisfy({ !host.contains( $0 ) }),
 			URLProtocol.property( forKey: handledKey, in: request ) == nil
 		else { return true }
 

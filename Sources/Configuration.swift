@@ -28,9 +28,9 @@ import SwiftUI
 
 
 public var isEnabled: Bool { return Configuration._isEnabled }
-public var ignoreHosts: [ String ] {
-	get { Configuration._ignoreHosts }
-	set { Configuration._ignoreHosts = newValue }
+public var ignoredHosts: [ String ] {
+	get { Configuration._ignoredHosts }
+	set { Configuration._ignoredHosts = newValue }
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
@@ -108,7 +108,7 @@ public var presentOnShake: Bool {
 
 enum Configuration {
 
-	@Synchronized static var _ignoreHosts: [ String ] = []
+	@Synchronized static var _ignoredHosts: [ String ] = []
 	@Synchronized static var _isEnabled: Bool = false
 	@Synchronized static var _presentOnShake: Bool = true
 	@Synchronized static var _isPresented: Bool = false
@@ -121,7 +121,9 @@ extension UIWindow {
 		_ motion: UIEvent.EventSubtype,
 		with event: UIEvent?
 	) {
-		if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *), motion == .motionShake {
+		if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *),
+		   Configuration._isEnabled && Configuration._presentOnShake,
+		   motion == .motionShake {
 			Task { await present() }
 		}
 	}
