@@ -57,12 +57,10 @@ extension UIColor {
 	) {
 		self.init { traitCollection in
 			switch traitCollection.userInterfaceStyle {
-			case .light:
+			case .light, .unspecified:
 				return light()
 			case .dark:
 				return dark()
-			case .unspecified:
-				return light()
 			@unknown default:
 				return light()
 			}
@@ -91,4 +89,17 @@ extension Color {
 		light: .white,
 		dark: .black
 	)
+}
+
+@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
+extension UIViewController {
+
+	@MainActor
+	func dismiss( animated flag: Bool ) async {
+		await withUnsafeContinuation { continuation in
+			self.dismiss( animated: flag ) {
+				continuation.resume()
+			}
+		}
+	}
 }

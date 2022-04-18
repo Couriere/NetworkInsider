@@ -98,10 +98,10 @@ public var presentOnShake: Bool {
 			rootViewController = presentedViewController
 		}
 
-		Configuration._isPresented = true
-		let hostingController = HostingController(rootView: NetworkInsiderMainView() ) {
-			Configuration._isPresented = false
+		let hostingController = HostingController( rootView: NetworkInsiderMainView() ) {
+			Configuration._presentedController = nil
 		}
+		Configuration._presentedController = hostingController
 		rootViewController.present( hostingController, animated: true )
 	}
 }
@@ -111,7 +111,9 @@ enum Configuration {
 	@Synchronized static var _ignoredHosts: [ String ] = []
 	@Synchronized static var _isEnabled: Bool = false
 	@Synchronized static var _presentOnShake: Bool = true
-	@Synchronized static var _isPresented: Bool = false
+	@Synchronized static var _presentedController: UIViewController?
+
+	static var _isPresented: Bool { _presentedController != nil }
 }
 
 //  Override the default behavior of shake gestures to send our notification instead.
@@ -124,7 +126,13 @@ extension UIWindow {
 		if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *),
 		   Configuration._isEnabled && Configuration._presentOnShake,
 		   motion == .motionShake {
-			Task { await present() }
+			Task {
+				if let presented = Configuration._presentedController {
+					await presented.dismiss( animated: true )
+				} else {
+					await present()
+				}
+			}
 		}
 	}
 }
