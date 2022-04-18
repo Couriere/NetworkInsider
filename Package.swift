@@ -7,13 +7,15 @@ let package = Package(
 	products: [
 		.library(
 			name: "NetworkInsider",
+			type: .dynamic,
 			targets: ["NetworkInsider"]
 		),
 	],
 	targets: [
 		.target(
 			name: "NetworkInsider",
-			path: "Sources" ),
+			path: "Sources"
+		),
 	],
 	swiftLanguageVersions: [ .v5 ]
 )
