@@ -28,10 +28,21 @@ import Foundation
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 extension URLSessionConfiguration {
 
+	public static func enableProxyURLProtocolIfNeeded(
+		to configuration: URLSessionConfiguration
+	) {
+		guard configuration.protocolClasses?
+			.contains(
+				where: { $0 == NetworkInsiderProxy.self }
+			) == false else { return }
+		
+		configuration.protocolClasses?.insert( NetworkInsiderProxy.self, at: 0 )
+	}
+
 	// Swizzling
 	static let configurationInitsSwizzle: Void = {
-		swizzleClassMethod( #selector( getter: URLSessionConfiguration.default ), #selector( getter: URLSessionConfiguration.wormholy_defaultSessionConfiguration ))
-		swizzleClassMethod( #selector( getter: URLSessionConfiguration.ephemeral ), #selector( getter: URLSessionConfiguration.wormholy_ephemeralSessionConfiguration ))
+		swizzleClassMethod( #selector( getter: URLSessionConfiguration.default ), #selector( getter: URLSessionConfiguration.insider_defaultSessionConfiguration ))
+		swizzleClassMethod( #selector( getter: URLSessionConfiguration.ephemeral ), #selector( getter: URLSessionConfiguration.insider_ephemeralSessionConfiguration ))
 	}()
 
 	class func swizzleClassMethod( _ originalSelector: Selector, _ swizzledSelector: Selector ) {
@@ -43,26 +54,16 @@ extension URLSessionConfiguration {
 		method_exchangeImplementations( originalMethod, swizzledMethod )
 	}
 
-	@objc private class var wormholy_defaultSessionConfiguration: URLSessionConfiguration {
-		let configuration = URLSessionConfiguration.wormholy_defaultSessionConfiguration // Original method
+	@objc private class var insider_defaultSessionConfiguration: URLSessionConfiguration {
+		let configuration = URLSessionConfiguration.insider_defaultSessionConfiguration // Original method
 		enableProxyURLProtocolIfNeeded( to: configuration )
 		return configuration
 	}
 
-	@objc private class var wormholy_ephemeralSessionConfiguration: URLSessionConfiguration {
-		let configuration = URLSessionConfiguration.wormholy_ephemeralSessionConfiguration // Original method
+	@objc private class var insider_ephemeralSessionConfiguration: URLSessionConfiguration {
+		let configuration = URLSessionConfiguration.insider_ephemeralSessionConfiguration // Original method
 		enableProxyURLProtocolIfNeeded( to: configuration )
 		return configuration
 	}
 
-	private static func enableProxyURLProtocolIfNeeded(
-		to configuration: URLSessionConfiguration
-	) {
-		guard configuration.protocolClasses?
-				.contains(
-					where: { $0 == NetworkInsiderProxy.self }
-				) == false else { return }
-
-		configuration.protocolClasses?.insert( NetworkInsiderProxy.self, at: 0 )
-	}
 }

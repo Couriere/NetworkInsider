@@ -34,8 +34,10 @@ public var ignoredHosts: [ String ] {
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-public func start() {
-	_ = URLSessionConfiguration.configurationInitsSwizzle
+public func start( swizzleURLSessionConfiguration: Bool = true ) {
+	if swizzleURLSessionConfiguration {
+		_ = URLSessionConfiguration.configurationInitsSwizzle
+	}
 	DispatchQueue.main.async {
 		Configuration._isEnabled = true
 		URLProtocol.registerClass( NetworkInsiderProxy.self )
@@ -43,8 +45,10 @@ public func start() {
 }
 
 @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
-@MainActor public func start() async {
-	_ = URLSessionConfiguration.configurationInitsSwizzle
+@MainActor public func start( swizzleURLSessionConfiguration: Bool = true ) async {
+	if swizzleURLSessionConfiguration {
+		_ = URLSessionConfiguration.configurationInitsSwizzle
+	}
 	Configuration._isEnabled = true
 	URLProtocol.registerClass( NetworkInsiderProxy.self )
 }
@@ -89,7 +93,7 @@ public var presentOnShake: Bool {
 		}
 	}
 
-	
+
 	if var rootViewController = UIApplication.shared.windows
 		.first( where: { $0.isKeyWindow } )?
 		.rootViewController {

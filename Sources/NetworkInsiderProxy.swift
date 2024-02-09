@@ -83,6 +83,22 @@ extension NetworkInsiderProxy: URLSessionDataDelegate {
 
 	func urlSession(
 		_ session: URLSession,
+		task: URLSessionTask,
+		willPerformHTTPRedirection response: HTTPURLResponse,
+		newRequest request: URLRequest,
+		completionHandler: @escaping (URLRequest?) -> Void
+	) {
+		client?.urlProtocol(
+			self,
+			wasRedirectedTo: request,
+			redirectResponse: response
+		)
+
+		completionHandler( request )
+	}
+
+	func urlSession(
+		_ session: URLSession,
 		dataTask: URLSessionDataTask,
 		didReceive response: URLResponse,
 		completionHandler: @escaping ( URLSession.ResponseDisposition ) -> Void
